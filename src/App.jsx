@@ -6,11 +6,11 @@ import './App.css'
 
 function App() {
   const [activeTab, setActiveTab] = useState('overview')
-  const [theme, setTheme] = useState('light')
+  const [theme, setTheme] = useState('dark')
 
   useEffect(() => {
-    // Check for saved theme preference or default to light
-    const savedTheme = localStorage.getItem('egad-theme') || 'light'
+    // Check for saved theme preference or default to dark
+    const savedTheme = localStorage.getItem('egad-theme') || 'dark'
     setTheme(savedTheme)
     document.documentElement.setAttribute('data-theme', savedTheme)
   }, [])
