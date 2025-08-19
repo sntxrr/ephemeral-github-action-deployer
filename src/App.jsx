@@ -221,11 +221,11 @@ certificatesResolvers:
               <div className="code-section">
                 <h2>GitHub Actions Workflow</h2>
                 <p>This workflow demonstrates the complete deployment process:</p>
-                <Highlight
-                  theme={themes.github}
-                  code={workflowYaml}
-                  language="yaml"
-                >
+                                 <Highlight
+                   theme={theme === 'dark' ? themes.vsDark : themes.vsLight}
+                   code={workflowYaml}
+                   language="yaml"
+                 >
                   {({ className, style, tokens, getLineProps, getTokenProps }) => (
                     <pre className={className} style={{ ...style, padding: '20px', overflowX: 'auto' }}>
                       {tokens.map((line, i) => (
@@ -245,11 +245,11 @@ certificatesResolvers:
               <div className="code-section">
                 <h2>Docker Compose Example</h2>
                 <p>Example whoami service configuration for Traefik:</p>
-                <Highlight
-                  theme={themes.github}
-                  code={dockerComposeYaml}
-                  language="yaml"
-                >
+                                 <Highlight
+                   theme={theme === 'dark' ? themes.vsDark : themes.vsLight}
+                   code={dockerComposeYaml}
+                   language="yaml"
+                 >
                   {({ className, style, tokens, getLineProps, getTokenProps }) => (
                     <pre className={className} style={{ ...style, padding: '20px', overflowX: 'auto' }}>
                       {tokens.map((line, i) => (
@@ -269,11 +269,11 @@ certificatesResolvers:
               <div className="code-section">
                 <h2>Traefik Configuration</h2>
                 <p>Basic Traefik configuration for the reverse proxy:</p>
-                <Highlight
-                  theme={themes.github}
-                  code={traefikConfig}
-                  language="yaml"
-                >
+                                 <Highlight
+                   theme={theme === 'dark' ? themes.vsDark : themes.vsLight}
+                   code={traefikConfig}
+                   language="yaml"
+                 >
                   {({ className, style, tokens, getLineProps, getTokenProps }) => (
                     <pre className={className} style={{ ...style, padding: '20px', overflowX: 'auto' }}>
                       {tokens.map((line, i) => (
