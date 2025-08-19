@@ -150,7 +150,7 @@ certificatesResolvers:
     { id: 'workflow', label: 'GitHub Actions', icon: '⚡' },
     { id: 'docker', label: 'Docker Compose', icon: '🐳' },
     { id: 'traefik', label: 'Traefik Config', icon: '🌐' },
-    { id: 'security', label: 'Security Features', icon: '🔒' },
+    { id: 'security', label: 'Architecture', icon: '🏗️' },
 
     { id: 'optional', label: 'Optional Features', icon: '🚀' }
   ]
@@ -291,7 +291,7 @@ certificatesResolvers:
 
             {activeTab === 'security' && (
               <div className="security-section">
-                <h2>EGAD Security Architecture</h2>
+                <h2>EGAD Architecture & Security</h2>
                 <div className="security-flow">
                   <div className="flow-step">
                     <div className="step-number">1</div>
