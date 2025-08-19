@@ -179,24 +179,7 @@ services:
         ))}
       </div>
 
-      <div className="feature-summary">
-        <h3>🎯 Available Features</h3>
-        <div className="summary-grid">
-          {features.map(feature => (
-            <div key={feature.id} className="summary-card">
-              <div className="summary-header">
-                <span className="summary-icon">{feature.icon}</span>
-                <h4>{feature.title.split(' ').slice(1).join(' ')}</h4>
-              </div>
-              <div className="summary-stats">
-                <span className="total-count">
-                  {feature.components.length} features
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+
     </div>
   )
 }
