@@ -14,7 +14,6 @@ const OptionalFeatures = () => {
         {
           name: 'Prometheus Metrics',
           description: 'Collect and expose metrics for monitoring',
-          enabled: true,
           config: `# traefik.yml
 metrics:
   prometheus:
@@ -27,7 +26,6 @@ metrics:
         {
           name: 'Grafana Dashboards',
           description: 'Pre-built dashboards for EGAD deployments',
-          enabled: true,
           config: `# docker-compose.yml
 grafana:
   image: grafana/grafana:latest
@@ -48,7 +46,6 @@ grafana:
         {
           name: 'OAuth2 Authentication',
           description: 'Secure authentication for your applications',
-          enabled: true,
           config: `# traefik.yml
 http:
   middlewares:
@@ -60,7 +57,6 @@ http:
         {
           name: 'Rate Limiting',
           description: 'Protect against abuse and DDoS',
-          enabled: true,
           config: `# traefik.yml
 http:
   middlewares:
@@ -81,7 +77,6 @@ http:
         {
           name: 'Auto-scaling',
           description: 'Automatic scaling based on metrics',
-          enabled: true,
           config: `# docker-compose.yml
 services:
   app:
@@ -105,7 +100,6 @@ services:
         {
           name: 'Slack Notifications',
           description: 'Send deployment updates to Slack',
-          enabled: true,
           config: `# In your workflow
 - name: Notify Slack
   run: |
@@ -116,7 +110,6 @@ services:
         {
           name: 'NTFY Notifications',
           description: 'Real-time push notifications via NTFY',
-          enabled: true,
           config: `# In your workflow
 - name: Notify NTFY
   run: |
@@ -132,23 +125,6 @@ services:
       ]
     }
   ]
-
-  const toggleFeature = (featureId, componentIndex) => {
-    const updatedFeatures = features.map(feature => {
-      if (feature.id === featureId) {
-        const updatedComponents = feature.components.map((component, index) => {
-          if (index === componentIndex) {
-            return { ...component, enabled: !component.enabled }
-          }
-          return component
-        })
-        return { ...feature, components: updatedComponents }
-      }
-      return feature
-    })
-    // In a real app, you'd save this to state or backend
-    console.log('Feature toggled:', updatedFeatures)
-  }
 
   return (
     <div className="optional-features">
@@ -185,27 +161,17 @@ services:
 
             <div className="components-grid">
               {feature.components.map((component, index) => (
-                <div key={index} className={`component-card ${component.enabled ? 'enabled' : 'disabled'}`}>
+                <div key={index} className="component-card">
                   <div className="component-header">
                     <h4>{component.name}</h4>
-                    <label className="toggle-switch">
-                      <input
-                        type="checkbox"
-                        checked={component.enabled}
-                        onChange={() => toggleFeature(feature.id, index)}
-                      />
-                      <span className="slider"></span>
-                    </label>
                   </div>
                   
                   <p>{component.description}</p>
                   
-                  {component.enabled && (
-                    <div className="component-config">
-                      <h5>Configuration:</h5>
-                      <pre><code>{component.config}</code></pre>
-                    </div>
-                  )}
+                  <div className="component-config">
+                    <h5>Configuration:</h5>
+                    <pre><code>{component.config}</code></pre>
+                  </div>
                 </div>
               ))}
             </div>
@@ -214,7 +180,7 @@ services:
       </div>
 
       <div className="feature-summary">
-        <h3>🎯 Feature Summary</h3>
+        <h3>🎯 Available Features</h3>
         <div className="summary-grid">
           {features.map(feature => (
             <div key={feature.id} className="summary-card">
@@ -223,11 +189,8 @@ services:
                 <h4>{feature.title.split(' ').slice(1).join(' ')}</h4>
               </div>
               <div className="summary-stats">
-                <span className="enabled-count">
-                  {feature.components.filter(c => c.enabled).length}
-                </span>
                 <span className="total-count">
-                  / {feature.components.length}
+                  {feature.components.length} features
                 </span>
               </div>
             </div>
