@@ -7,6 +7,19 @@ import './App.css'
 function App() {
   const [activeTab, setActiveTab] = useState('overview')
   const [theme, setTheme] = useState('dark')
+  const [copiedStates, setCopiedStates] = useState({})
+
+  const handleCopy = async (code, tabId) => {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopiedStates(prev => ({ ...prev, [tabId]: true }))
+      setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, [tabId]: false }))
+      }, 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
 
   useEffect(() => {
     // Check for saved theme preference or default to dark
@@ -219,7 +232,16 @@ certificatesResolvers:
 
             {activeTab === 'workflow' && (
               <div className="code-section">
-                <h2>GitHub Actions Workflow</h2>
+                <div className="code-header">
+                  <h2>GitHub Actions Workflow</h2>
+                  <button 
+                    className={`copy-button ${copiedStates['workflow'] ? 'copied' : ''}`}
+                    onClick={() => handleCopy(workflowYaml, 'workflow')}
+                    title="Copy workflow"
+                  >
+                    {copiedStates['workflow'] ? '✅ Copied!' : '📋 Copy'}
+                  </button>
+                </div>
                 <p>This workflow demonstrates the complete deployment process:</p>
                                  <Highlight
                    theme={theme === 'dark' ? themes.vsDark : themes.vsLight}
@@ -243,7 +265,16 @@ certificatesResolvers:
 
             {activeTab === 'docker' && (
               <div className="code-section">
-                <h2>Docker Compose Example</h2>
+                <div className="code-header">
+                  <h2>Docker Compose Example</h2>
+                  <button 
+                    className={`copy-button ${copiedStates['docker'] ? 'copied' : ''}`}
+                    onClick={() => handleCopy(dockerComposeYaml, 'docker')}
+                    title="Copy docker compose"
+                  >
+                    {copiedStates['docker'] ? '✅ Copied!' : '📋 Copy'}
+                  </button>
+                </div>
                 <p>Example whoami service configuration for Traefik:</p>
                                  <Highlight
                    theme={theme === 'dark' ? themes.vsDark : themes.vsLight}
@@ -267,7 +298,16 @@ certificatesResolvers:
 
             {activeTab === 'traefik' && (
               <div className="code-section">
-                <h2>Traefik Configuration</h2>
+                <div className="code-header">
+                  <h2>Traefik Configuration</h2>
+                  <button 
+                    className={`copy-button ${copiedStates['traefik'] ? 'copied' : ''}`}
+                    onClick={() => handleCopy(traefikConfig, 'traefik')}
+                    title="Copy traefik config"
+                  >
+                    {copiedStates['traefik'] ? '✅ Copied!' : '📋 Copy'}
+                  </button>
+                </div>
                 <p>Basic Traefik configuration for the reverse proxy:</p>
                                  <Highlight
                    theme={theme === 'dark' ? themes.vsDark : themes.vsLight}

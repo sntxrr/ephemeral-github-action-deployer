@@ -277,6 +277,19 @@ body {
 }
 
 /* Code sections */
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.code-header h2 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--text-primary);
+}
+
 .code-section h2 {
   font-size: 1.8rem;
   margin-bottom: 1rem;
@@ -287,6 +300,36 @@ body {
   color: var(--text-secondary);
   margin-bottom: 1.5rem;
   font-size: 1.1rem;
+}
+
+.copy-button {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.copy-button:hover {
+  background: var(--accent-color-hover);
+  transform: translateY(-1px);
+}
+
+.copy-button:active {
+  transform: translateY(0);
+}
+
+.copy-button.copied {
+  background: var(--success-color);
+  transform: scale(1.05);
+}
+
+.copy-button.copied:hover {
+  background: var(--success-color);
 }
 
 /* Security section */
