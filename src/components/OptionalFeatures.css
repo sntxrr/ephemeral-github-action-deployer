@@ -145,7 +145,7 @@
 
 /* Component Configuration */
 .component-config {
-  background: var(--code-bg);
+  background: var(--bg-tertiary);
   border-radius: 8px;
   padding: 1rem;
   margin-top: 1rem;
