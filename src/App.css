@@ -9,6 +9,7 @@
   --text-muted: #94a3b8;
   --border-color: #e2e8f0;
   --accent-color: #667eea;
+  --accent-color-hover: #5a67d8;
   --accent-hover: #5a67d8;
   --shadow-color: rgba(0, 0, 0, 0.1);
   --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -30,6 +31,7 @@
   --text-muted: #64748b;
   --border-color: #475569;
   --accent-color: #818cf8;
+  --accent-color-hover: #6366f1;
   --accent-hover: #a78bfa;
   --shadow-color: rgba(0, 0, 0, 0.3);
   --header-bg: linear-gradient(135deg, #1e293b 0%, #334155 100%);

@@ -169,7 +169,16 @@ services:
                   <p>{component.description}</p>
                   
                   <div className="component-config">
-                    <h5>Configuration:</h5>
+                    <div className="config-header">
+                      <h5>Configuration:</h5>
+                      <button 
+                        className="copy-button"
+                        onClick={() => navigator.clipboard.writeText(component.config)}
+                        title="Copy configuration"
+                      >
+                        📋 Copy
+                      </button>
+                    </div>
                     <pre><code>{component.config}</code></pre>
                   </div>
                 </div>
