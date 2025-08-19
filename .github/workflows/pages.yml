@@ -32,16 +32,10 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Copy built assets to root for GitHub Pages
-        run: |
-          cp dist/index.html index.html
-          cp -r dist/assets ./
-          cp dist/vite.svg ./
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./
+          path: ./dist
 
   deploy:
     environment:
