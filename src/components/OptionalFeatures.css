@@ -188,6 +188,15 @@
   transform: translateY(0);
 }
 
+.copy-button.copied {
+  background: var(--success-color, #10b981);
+  transform: scale(1.05);
+}
+
+.copy-button.copied:hover {
+  background: var(--success-color, #10b981);
+}
+
 .component-config pre {
   margin: 0;
   overflow-x: auto;

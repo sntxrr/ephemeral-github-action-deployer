@@ -3,6 +3,19 @@ import './OptionalFeatures.css'
 
 const OptionalFeatures = () => {
   const [activeFeature, setActiveFeature] = useState('monitoring')
+  const [copiedStates, setCopiedStates] = useState({})
+
+  const handleCopy = async (config, componentId) => {
+    try {
+      await navigator.clipboard.writeText(config)
+      setCopiedStates(prev => ({ ...prev, [componentId]: true }))
+      setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, [componentId]: false }))
+      }, 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
 
   const features = [
     {
@@ -172,11 +185,11 @@ services:
                     <div className="config-header">
                       <h5>Configuration:</h5>
                       <button 
-                        className="copy-button"
-                        onClick={() => navigator.clipboard.writeText(component.config)}
+                        className={`copy-button ${copiedStates[`${feature.id}-${index}`] ? 'copied' : ''}`}
+                        onClick={() => handleCopy(component.config, `${feature.id}-${index}`)}
                         title="Copy configuration"
                       >
-                        📋 Copy
+                        {copiedStates[`${feature.id}-${index}`] ? '✅ Copied!' : '📋 Copy'}
                       </button>
                     </div>
                     <pre><code>{component.config}</code></pre>
