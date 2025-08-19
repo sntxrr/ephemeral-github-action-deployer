@@ -245,19 +245,19 @@ body {
   text-align: center;
   margin-top: 3rem;
   padding: 2rem;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: var(--bg-tertiary);
   border-radius: 12px;
-  border: 1px solid #bae6fd;
+  border: 1px solid var(--border-color);
 }
 
 .cta-section h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #0c4a6e;
+  color: var(--text-primary);
 }
 
 .cta-section p {
-  color: #0369a1;
+  color: var(--text-secondary);
   font-size: 1.1rem;
 }
 
@@ -265,11 +265,11 @@ body {
 .code-section h2 {
   font-size: 1.8rem;
   margin-bottom: 1rem;
-  color: #1e293b;
+  color: var(--text-primary);
 }
 
 .code-section p {
-  color: #64748b;
+  color: var(--text-secondary);
   margin-bottom: 1.5rem;
   font-size: 1.1rem;
 }
