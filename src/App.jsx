@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { Highlight, themes } from 'prism-react-renderer'
 
 import OptionalFeatures from './components/OptionalFeatures'
 import './App.css'
@@ -222,13 +221,23 @@ certificatesResolvers:
               <div className="code-section">
                 <h2>GitHub Actions Workflow</h2>
                 <p>This workflow demonstrates the complete deployment process:</p>
-                <SyntaxHighlighter
+                <Highlight
+                  theme={themes.github}
+                  code={workflowYaml}
                   language="yaml"
-                  style={tomorrow}
-                  customStyle={{ fontSize: '14px' }}
                 >
-                  {workflowYaml}
-                </SyntaxHighlighter>
+                  {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                    <pre className={className} style={{ ...style, padding: '20px', overflowX: 'auto' }}>
+                      {tokens.map((line, i) => (
+                        <div key={i} {...getLineProps({ line, key: i })}>
+                          {line.map((token, key) => (
+                            <span key={key} {...getTokenProps({ token, key })} />
+                          ))}
+                        </div>
+                      ))}
+                    </pre>
+                  )}
+                </Highlight>
               </div>
             )}
 
@@ -236,13 +245,23 @@ certificatesResolvers:
               <div className="code-section">
                 <h2>Docker Compose Example</h2>
                 <p>Example whoami service configuration for Traefik:</p>
-                <SyntaxHighlighter
+                <Highlight
+                  theme={themes.github}
+                  code={dockerComposeYaml}
                   language="yaml"
-                  style={tomorrow}
-                  customStyle={{ fontSize: '14px' }}
                 >
-                  {dockerComposeYaml}
-                </SyntaxHighlighter>
+                  {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                    <pre className={className} style={{ ...style, padding: '20px', overflowX: 'auto' }}>
+                      {tokens.map((line, i) => (
+                        <div key={i} {...getLineProps({ line, key: i })}>
+                          {line.map((token, key) => (
+                            <span key={key} {...getTokenProps({ token, key })} />
+                          ))}
+                        </div>
+                      ))}
+                    </pre>
+                  )}
+                </Highlight>
               </div>
             )}
 
@@ -250,13 +269,23 @@ certificatesResolvers:
               <div className="code-section">
                 <h2>Traefik Configuration</h2>
                 <p>Basic Traefik configuration for the reverse proxy:</p>
-                <SyntaxHighlighter
+                <Highlight
+                  theme={themes.github}
+                  code={traefikConfig}
                   language="yaml"
-                  style={tomorrow}
-                  customStyle={{ fontSize: '14px' }}
                 >
-                  {traefikConfig}
-                </SyntaxHighlighter>
+                  {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                    <pre className={className} style={{ ...style, padding: '20px', overflowX: 'auto' }}>
+                      {tokens.map((line, i) => (
+                        <div key={i} {...getLineProps({ line, key: i })}>
+                          {line.map((token, key) => (
+                            <span key={key} {...getTokenProps({ token, key })} />
+                          ))}
+                        </div>
+                      ))}
+                    </pre>
+                  )}
+                </Highlight>
               </div>
             )}
 
