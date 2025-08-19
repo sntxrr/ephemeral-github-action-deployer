@@ -437,9 +437,10 @@ body {
 }
 
 /* Syntax highlighter customization */
-.react-syntax-highlighter {
+pre {
   border-radius: 8px !important;
   border: 1px solid #e2e8f0 !important;
+  font-size: 14px !important;
 }
 
 /* Smooth transitions */
