@@ -86,13 +86,7 @@ Configure these in your GitHub repository:
 4. **Automatic cleanup** removes the ephemeral node
 5. **Health checks** verify successful deployment
 
-## 🎨 Features
 
-- **Modern React UI** with interactive documentation
-- **Syntax highlighting** for all code examples
-- **Responsive design** that works on all devices
-- **Comprehensive examples** with real-world configurations
-- **Security-focused** architecture and explanations
 
 ## 🔧 Development
 
