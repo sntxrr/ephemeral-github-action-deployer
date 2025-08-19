@@ -32,13 +32,10 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Copy built HTML to root for GitHub Pages
-        run: cp dist/index.html index.html
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./
+          path: ./dist
 
   deploy:
     environment:
