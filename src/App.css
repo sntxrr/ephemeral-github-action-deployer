@@ -261,6 +261,17 @@ body {
   font-size: 1.1rem;
 }
 
+.cta-section a {
+  color: var(--footer-link);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.cta-section a:hover {
+  color: var(--footer-link-hover);
+  text-decoration: underline;
+}
+
 /* Code sections */
 .code-section h2 {
   font-size: 1.8rem;
