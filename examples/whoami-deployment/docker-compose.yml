@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  whoami:
+    image: traefik/whoami:v1.8.0
+    container_name: whoami
+    restart: unless-stopped
+    networks:
+      - web
+    labels:
+      # Enable Traefik
+      - "traefik.enable=true"
+      
+      # HTTP Router Configuration
+      - "traefik.http.routers.whoami.entrypoints=https"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.yourdomain.com`)"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.tls.certresolver=cloudflare"
+      - "traefik.http.routers.whoami.service=whoami"
+      
+      # Service Configuration
+      - "traefik.http.services.whoami.loadbalancer.server.port=80"
+      
+      # Middleware for security headers
+      - "traefik.http.routers.whoami.middlewares=whoami-headers"
+      
+      # Middleware definition
+      - "traefik.http.middlewares.whoami-headers.headers.frameDeny=true"
+      - "traefik.http.middlewares.whoami-headers.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.whoami-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.whoami-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.whoami-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.whoami-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.whoami-headers.headers.stsSeconds=315360000"
+
+networks:
+  web:
+    external: true

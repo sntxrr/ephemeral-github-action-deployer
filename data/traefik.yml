@@ -1,0 +1,64 @@
+api:
+  dashboard: true
+  debug: true
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+  https:
+    address: ":443"
+serversTransport:
+  insecureSkipVerify: true
+  # Add timeouts for better reliability
+  forwardingTimeouts:
+    dialTimeout: 30s
+    responseHeaderTimeout: 30s
+    idleConnTimeout: 30s
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    # Add network configuration
+    network: web
+  file:
+    filename: /config.yml
+    # Add watch for automatic reload
+    watch: true
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: your+email@provider.com
+      storage: acme.json
+      # Production ACME server (default)
+      #caServer: https://acme-v02.api.letsencrypt.org/directory
+      # Staging ACME server (for testing)
+      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+      dnsChallenge:
+        provider: cloudflare
+        # Enable these for better reliability
+        disablePropagationCheck: true
+        delayBeforeCheck: 30s
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
+# Writing Logs to a File
+log:
+  level: INFO  # Change to INFO for production
+  filePath: "traefik-debug.log"
+accesslog:
+  addInternals: true
+  filePath: "access.log"
+  # Add fields for better logging
+  fields:
+    defaultMode: keep
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: keep
+        Referer: keep
+        X-Forwarded-For: keep
+        X-Real-Ip: keep

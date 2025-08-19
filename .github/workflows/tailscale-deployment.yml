@@ -1,0 +1,95 @@
+name: Validate and Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  TAILSCALE_HOST: "traefik"
+  TAILSCALE_IP: "100.xx.xx.xx"
+  TAILSCALE_USER: "your.email@address.com"
+  TARGET_USER: "your-linux-username"
+  TAILSCALE_SSH_KEY: ${{ secrets.TAILSCALE_SSH_KEY }}
+  TAILSCALE_SSH_KEY_PUB: ${{ secrets.TAILSCALE_SSH_KEY_PUB }}
+  NOTIFY_TOPIC: "traefik-deploy"
+  NOTIFY_PRIORITY: "high"
+  NOTIFY_TAGS: "warning,rotating_light"
+
+jobs:
+  validate:
+    name: ${{ github.event_name == 'pull_request' && 'Validate PR' || 'Validate' }}
+    runs-on: ubuntu-latest
+    env:
+      NTFY_API_KEY: ${{ secrets.NTFY_API_KEY }}
+      GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+      GITHUB_PR_TITLE: ${{ github.event.pull_request.title }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Notify validation start
+        run: ./scripts/notify.sh "start" "validate"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck yamllint docker-compose curl
+
+      - name: Run ShellCheck
+        run: make shellcheck
+
+      - name: Validate YAML files
+        run: make validate-yaml
+
+      - name: Validate Docker Compose
+        run: make validate-docker
+
+      - name: Notify validation success
+        run: ./scripts/notify.sh "success" "validate"
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    env:
+      NTFY_API_KEY: ${{ secrets.NTFY_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Setup SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          echo "Debug: Environment variables:"
+          echo "TAILSCALE_HOST: $TAILSCALE_HOST"
+          echo "TAILSCALE_IP: $TAILSCALE_IP"
+          echo "TARGET_USER: $TARGET_USER"
+          echo "SSH_KEY length: ${#SSH_KEY}"
+          echo "Script contents:"
+          cat ./scripts/setup_ssh.sh
+          echo "Running setup_ssh.sh..."
+          ./scripts/setup_ssh.sh || {
+            echo "Setup failed. Checking SSH directory:"
+            ls -la ~/.ssh || true
+            echo "Checking script permissions:"
+            ls -l ./scripts/setup_ssh.sh
+            exit 1
+          }
+
+      - name: Validate SSH connection
+        run: ./scripts/validate_ssh.sh
+
+      - name: Deploy
+        run: ./scripts/deploy.sh
+
+      - name: Notify on success
+        run: ./scripts/notify.sh "success" "deploy"

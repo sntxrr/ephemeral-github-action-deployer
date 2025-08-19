@@ -1,0 +1,136 @@
+name: EGAD - Deploy Whoami to Traefik via Tailscale
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  TAILSCALE_HOST: "your-traefik-host"  # Replace with your Tailscale hostname
+  TAILSCALE_IP: "100.64.0.0"           # Replace with your Tailscale IP
+  TARGET_USER: "your-username"          # Replace with your server username
+  APP_NAME: "whoami"
+  DEPLOY_PATH: "/opt/apps/whoami"       # Path on target server
+
+jobs:
+  validate:
+    name: Validate Configuration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose yamllint
+      
+      - name: Validate YAML
+        run: yamllint docker-compose.yml
+      
+      - name: Validate Docker Compose
+        run: docker-compose --env-file <(echo "DUMMY=value") config
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://whoami.yourdomain.com
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci, tag:deployment
+      
+      - name: Setup SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # Add host key to known_hosts
+          ssh-keyscan -H $TAILSCALE_HOST >> ~/.ssh/known_hosts
+          
+          # Test Tailscale connectivity
+          echo "Testing Tailscale connectivity..."
+          tailscale ping -c 3 $TAILSCALE_HOST
+      
+      - name: Create deployment backup
+        run: |
+          ssh -o StrictHostKeyChecking=no $TARGET_USER@$TAILSCALE_HOST "
+            if [ -d '$DEPLOY_PATH' ]; then
+              BACKUP_DIR='/home/$TARGET_USER/backups/$APP_NAME'
+              mkdir -p \$BACKUP_DIR
+              BACKUP_FILE=\"\$BACKUP_DIR/${APP_NAME}_backup_\$(date +%Y%m%d_%H%M%S).tar.gz\"
+              cd '$DEPLOY_PATH'
+              tar -czf \$BACKUP_FILE .
+              echo \"Backup created: \$BACKUP_FILE\"
+            fi
+          "
+      
+      - name: Deploy application
+        run: |
+          # Create deployment directory
+          ssh -o StrictHostKeyChecking=no $TARGET_USER@$TAILSCALE_HOST "
+            mkdir -p '$DEPLOY_PATH'
+            cd '$DEPLOY_PATH'
+          "
+          
+          # Copy docker-compose file
+          scp -o StrictHostKeyChecking=no docker-compose.yml $TARGET_USER@$TAILSCALE_HOST:$DEPLOY_PATH/
+          
+          # Deploy with Docker Compose
+          ssh -o StrictHostKeyChecking=no $TARGET_USER@$TAILSCALE_HOST "
+            cd '$DEPLOY_PATH'
+            
+            # Pull latest image
+            docker compose pull
+            
+            # Stop existing containers
+            docker compose down || true
+            
+            # Start new containers
+            docker compose up -d
+            
+            # Wait for containers to be healthy
+            sleep 10
+            
+            # Verify deployment
+            if docker compose ps | grep -q 'Up'; then
+              echo 'Deployment successful!'
+              docker compose ps
+            else
+              echo 'Deployment failed!'
+              docker compose logs
+              exit 1
+            fi
+          "
+      
+      - name: Health check
+        run: |
+          echo "Waiting for application to be ready..."
+          sleep 30
+          
+          # Test the application endpoint (adjust URL as needed)
+          if curl -f -s https://whoami.yourdomain.com > /dev/null; then
+            echo "✅ Application is responding"
+          else
+            echo "❌ Application health check failed"
+            exit 1
+          fi
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          # Remove SSH key from runner
+          rm -f ~/.ssh/id_ed25519
+          
+          # Log deployment completion
+          echo "Deployment process completed"

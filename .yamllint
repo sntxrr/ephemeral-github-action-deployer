@@ -1,0 +1,17 @@
+extends: default
+
+rules:
+  document-start: disable  # We don't need --- at the start of files
+  line-length:
+    max: 120  # Allow longer lines for URLs and complex configurations
+  comments:
+    require-starting-space: false  # Allow comments without space
+    min-spaces-from-content: 1  # Require at least one space before comment
+  trailing-spaces: enable
+  new-line-at-end-of-file: enable
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no']  # Allow GitHub Actions truthy values
+  indentation:
+    spaces: 2  # Use 2 spaces for indentation
+    indent-sequences: true  # Indent sequences
+    check-multi-line-strings: false  # Don't check multi-line strings 
