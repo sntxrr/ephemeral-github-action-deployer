@@ -20,15 +20,15 @@ A simple HTTP service that displays request information. Perfect for testing and
 
 ---
 
-### 2. **NTFY Integration** - `ntfy-integration/`
-Complete NTFY notification setup for EGAD deployments with real-time alerts and monitoring.
+### 2. **Apprise Integration** - `apprise-integration/`
+Complete Apprise notification setup for EGAD deployments. Apprise fans one HTTP POST out to 90+ destinations (Matrix, Slack, Discord, Pushover, email, etc.), so the deploy workflow stays simple while the routing is configured centrally.
 
 **Features:**
-- NTFY server configuration
-- Notification examples and templates
-- GitHub Actions integration
-- Priority and tag management
-- Security considerations
+- apprise-api endpoint configuration
+- Keyed configs (one key per topic/audience)
+- GitHub Actions integration over tailscale
+- Notification type (info/success/failure) and tag support
+- Security considerations (no per-call auth token; key-as-secret model)
 
 **Use Case:** Adding real-time notifications to deployments, monitoring deployment status
 
