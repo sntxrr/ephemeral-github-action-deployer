@@ -34,7 +34,7 @@ Visit the interactive documentation: **[GitHub Pages Site](https://sntxrr.github
 
 ### 2. **Complete Example Implementation**
 - `examples/whoami-deployment/` - Full working example
-- `examples/ntfy-integration/` - NTFY notification setup
+- `examples/apprise-integration/` - Apprise notification setup
 - Docker Compose configuration
 - GitHub Actions workflow
 - Traefik configuration
@@ -46,7 +46,7 @@ Visit the interactive documentation: **[GitHub Pages Site](https://sntxrr.github
 - GitHub Actions workflows
 - Security best practices
 - Optional features and integrations
-- NTFY notification system
+- Apprise notification system (multi-channel fan-out via apprise-api)
 
 ## 🚀 Quick Start
 

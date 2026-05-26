@@ -3,17 +3,23 @@
 # Exit on error
 set -e
 
-# Function to send notification
+# Function to send notification via apprise (override APPRISE_URL/APPRISE_KEY per project)
 send_notification() {
     local title="$1"
     local message="$2"
+    local type="${3:-info}"
     local timestamp
     timestamp=$(TZ='America/Los_Angeles' date '+%Y-%m-%d %I:%M:%S %p %Z')
-    
-    curl -H "Title: $title" \
-         -H "Authorization: Bearer $NTFY_API_KEY" \
-         -d "$message at $timestamp" \
-         https://ntfy.sh/traefik-deploy
+    local apprise_url="${APPRISE_URL:-http://docker:3005}"
+    local apprise_key="${APPRISE_KEY:-deploy-notifications-homelab}"
+    local notify_tags="${NOTIFY_TAGS:-traefik,deployment}"
+
+    curl --max-time 10 -X POST \
+         -F "title=$title" \
+         -F "body=$message at $timestamp" \
+         -F "tag=$notify_tags" \
+         -F "type=$type" \
+         "$apprise_url/notify/$apprise_key" || echo "apprise notify failed (non-fatal)"
 }
 
 # Function to execute remote commands
@@ -22,7 +28,7 @@ execute_remote() {
     local error_message="$2"
     
     if ! timeout 10m ssh -o StrictHostKeyChecking=accept-new -o HostKeyAlias=traefik "$TARGET_USER@traefik" "$command"; then
-        send_notification "Traefik Deployment Failed" "$error_message"
+        send_notification "Traefik Deployment Failed" "$error_message" "failure"
         exit 1
     fi
 }

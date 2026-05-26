@@ -149,7 +149,9 @@ setup_project() {
 TAILSCALE_HOST=your-traefik-host
 TAILSCALE_IP=100.64.0.0
 TARGET_USER=your-username
-NTFY_API_KEY=your-ntfy-api-key
+# Apprise notification endpoint (tailscale-only; override per environment).
+APPRISE_URL=http://docker:3005
+APPRISE_KEY=deploy-notifications-homelab
 EOF
         print_success ".env file created! Please update it with your values."
     fi

@@ -1,77 +1,72 @@
 #!/bin/bash
+# Template notification script for EGAD-deployed projects.
+#
+# Sends deploy notifications via apprise (https://github.com/caronc/apprise-api).
+# The default endpoint is the homelab apprise instance reachable only over tailscale;
+# override APPRISE_URL / APPRISE_KEY in your project to point at your own setup.
 
-# Exit on error
 set -e
 
-# Function to send notification
-send_notification() {
-    local title="$1"
-    local message="$2"
-    local priority="${3:-default}"
-    local tags="${4:-rocket,deployment}"
-    local timestamp
-    timestamp=$(TZ='America/Los_Angeles' date '+%Y-%m-%d %I:%M:%S %p %Z')
-    
-    # Add PR information if available
-    if [ -n "$GITHUB_PR_NUMBER" ] && [ -n "$GITHUB_PR_TITLE" ]; then
-        message="$message (PR #$GITHUB_PR_NUMBER: $GITHUB_PR_TITLE)"
-    fi
-    
-    # Use NTFY_SERVER and NTFY_TOPIC if available, fallback to defaults
-    local ntfy_server="${NTFY_SERVER:-https://ntfy.sh}"
-    local ntfy_topic="${NTFY_TOPIC:-traefik-deploy}"
-    
-    curl -H "Title: $title" \
-         -H "Priority: $priority" \
-         -H "Tags: $tags" \
-         -H "Authorization: Bearer $NTFY_API_KEY" \
-         -d "$message at $timestamp" \
-         "$ntfy_server/$ntfy_topic"
-}
+STATUS="$1"  # start, success, timeout, failure
+PHASE="${2:-deploy}"
 
-# Check if required environment variables are set
-if [ -z "$NTFY_API_KEY" ]; then
-    echo "Error: NTFY_API_KEY environment variable is not set"
-    exit 1
-fi
+APPRISE_URL="${APPRISE_URL:-http://docker:3005}"
+APPRISE_KEY="${APPRISE_KEY:-deploy-notifications-homelab}"
+NOTIFY_TAGS="${NOTIFY_TAGS:-deployment}"
 
 if [ -z "$GITHUB_SHA" ]; then
     echo "Error: GITHUB_SHA environment variable is not set"
     exit 1
 fi
 
-# Get notification context (deploy or validate)
-context=${2:-"deploy"}
+TIMESTAMP=$(TZ='America/Los_Angeles' date '+%Y-%m-%d %I:%M:%S %p %Z')
+SHORT_SHA="${GITHUB_SHA:0:7}"
 
-# Send notification based on status and context
-if [ "$1" = "start" ]; then
-    if [ "$context" = "deploy" ]; then
-        send_notification "🚀 EGAD Deployment Started" "Starting deployment process for commit $GITHUB_SHA" "default" "rocket,deployment"
-    elif [ "$context" = "validate" ]; then
-        send_notification "🔍 EGAD Validation Started" "Starting validation checks for commit $GITHUB_SHA" "default" "magnifying_glass,validation"
-    else
-        echo "Error: Invalid context. Use 'deploy' or 'validate'"
+PR_SUFFIX=""
+if [ -n "$GITHUB_PR_NUMBER" ] && [ -n "$GITHUB_PR_TITLE" ]; then
+    PR_SUFFIX=" (PR #$GITHUB_PR_NUMBER: $GITHUB_PR_TITLE)"
+fi
+
+case "$STATUS-$PHASE" in
+    "start-deploy")
+        TITLE="🚀 EGAD Deployment Started"
+        MESSAGE="Starting deployment process for commit $SHORT_SHA$PR_SUFFIX at $TIMESTAMP"
+        TYPE="info"
+        ;;
+    "start-validate")
+        TITLE="🔍 EGAD Validation Started"
+        MESSAGE="Starting validation checks for commit $SHORT_SHA$PR_SUFFIX at $TIMESTAMP"
+        TYPE="info"
+        ;;
+    "success-deploy")
+        TITLE="✅ EGAD Deployment Success"
+        MESSAGE="Deployment completed successfully for commit $SHORT_SHA$PR_SUFFIX at $TIMESTAMP"
+        TYPE="success"
+        ;;
+    "success-validate")
+        TITLE="✅ EGAD Validation Success"
+        MESSAGE="All validation checks passed for commit $SHORT_SHA$PR_SUFFIX at $TIMESTAMP"
+        TYPE="success"
+        ;;
+    "timeout-deploy"|"failure-deploy")
+        TITLE="❌ EGAD Deployment Failed"
+        MESSAGE="Deployment failed for commit $SHORT_SHA$PR_SUFFIX at $TIMESTAMP. Check GitHub Actions for details."
+        TYPE="failure"
+        ;;
+    "timeout-validate"|"failure-validate")
+        TITLE="❌ EGAD Validation Failed"
+        MESSAGE="Validation failed for commit $SHORT_SHA$PR_SUFFIX at $TIMESTAMP"
+        TYPE="failure"
+        ;;
+    *)
+        echo "Error: Invalid notification type. Use start|success|timeout|failure and deploy|validate"
         exit 1
-    fi
-elif [ "$1" = "success" ]; then
-    if [ "$context" = "deploy" ]; then
-        send_notification "✅ EGAD Deployment Success" "Deployment completed successfully for commit $GITHUB_SHA" "low" "white_check_mark,success"
-    elif [ "$context" = "validate" ]; then
-        send_notification "✅ EGAD Validation Success" "All validation checks passed for commit $GITHUB_SHA" "low" "white_check_mark,success"
-    else
-        echo "Error: Invalid context. Use 'deploy' or 'validate'"
-        exit 1
-    fi
-elif [ "$1" = "timeout" ]; then
-    if [ "$context" = "deploy" ]; then
-        send_notification "❌ EGAD Deployment Failed" "Deployment timed out after 10 minutes for commit $GITHUB_SHA" "high" "x,failure,deployment"
-    elif [ "$context" = "validate" ]; then
-        send_notification "❌ EGAD Validation Failed" "Validation timed out for commit $GITHUB_SHA" "high" "x,failure,validation"
-    else
-        echo "Error: Invalid context. Use 'deploy' or 'validate'"
-        exit 1
-    fi
-else
-    echo "Error: Invalid notification type. Use 'start', 'success', or 'timeout'"
-    exit 1
-fi 
+        ;;
+esac
+
+curl --max-time 10 -X POST \
+     -F "title=$TITLE" \
+     -F "body=$MESSAGE" \
+     -F "tag=$NOTIFY_TAGS" \
+     -F "type=$TYPE" \
+     "$APPRISE_URL/notify/$APPRISE_KEY" || echo "apprise notify failed (non-fatal)"
