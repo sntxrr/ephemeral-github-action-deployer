@@ -11,15 +11,21 @@ send_notification() {
     local timestamp
     timestamp=$(TZ='America/Los_Angeles' date '+%Y-%m-%d %I:%M:%S %p %Z')
     local apprise_url="${APPRISE_URL:-http://docker:3005}"
-    local apprise_key="${APPRISE_KEY:-deploy-notifications-homelab}"
+    local apprise_key="${APPRISE_KEY:-deploy-notifications}"
     local notify_tags="${NOTIFY_TAGS:-traefik,deployment}"
 
-    curl --max-time 10 -X POST \
+    local code
+
+    # curl exits 0 when apprise answers 424 ("not sent") or 204 (unknown key),
+    # so the exit code proves nothing: capture the status and require 200.
+    code="$(curl --max-time 10 -sS -o /dev/null -w '%{http_code}' -X POST \
          -F "title=$title" \
          -F "body=$message at $timestamp" \
          -F "tag=$notify_tags" \
          -F "type=$type" \
-         "$apprise_url/notify/$apprise_key" || echo "apprise notify failed (non-fatal)"
+         "$apprise_url/notify/$apprise_key" 2>/dev/null || true)"
+    code="${code:-000}"
+    [ "$code" = "200" ] || echo "apprise answered HTTP $code for key '$apprise_key' -- NOT delivered (non-fatal)"
 }
 
 # Debug information

@@ -17,7 +17,7 @@ Apprise is a notification fan-out service. You POST one HTTP request to a keyed 
 ## 📋 Prerequisites
 
 1. **Apprise API server**: A running `caronc/apprise` container (see "Hosting Apprise" below)
-2. **A config key**: One or more pre-configured keys (e.g., `deploy-notifications-homelab`) with one or more destination URLs (see [Apprise URL syntax](https://github.com/caronc/apprise/wiki))
+2. **A config key**: One or more pre-configured keys (e.g., `deploy-notifications`) with one or more destination URLs (see [Apprise URL syntax](https://github.com/caronc/apprise/wiki))
 3. **Network reachability**: GitHub Actions runners need to be able to reach the apprise endpoint — typically via tailscale, since the runner is ephemeral and the apprise instance is on a private network
 
 ## 🔧 Setup
@@ -45,7 +45,7 @@ services:
 
 ### 2. Save a Config Key
 
-Pick a name (e.g., `deploy-notifications-homelab`) and POST a config to `/add/<key>`:
+Pick a name (e.g., `deploy-notifications`) and POST a config to `/add/<key>`:
 
 ```bash
 curl -X POST \
@@ -54,7 +54,7 @@ curl -X POST \
   - matrixs://bot:PASSWORD@matrix.example.org/!ROOMID:matrix.example.org
   - discord://WEBHOOK_ID/WEBHOOK_TOKEN
   - pover://USER@TOKEN" \
-  http://apprise.example/add/deploy-notifications-homelab
+  http://apprise.example/add/deploy-notifications
 ```
 
 The same key can carry multiple destination URLs; apprise fans every notify out to all of them. Adding a fourth channel later is just re-posting the same config with one more URL — no repo changes anywhere.
@@ -66,7 +66,7 @@ In your `.github/workflows/deploy.yml`:
 ```yaml
 env:
   APPRISE_URL: "http://docker:3005"
-  APPRISE_KEY: "deploy-notifications-homelab"
+  APPRISE_KEY: "deploy-notifications"
   NOTIFY_TAGS: "your-service,deployment"
 ```
 
