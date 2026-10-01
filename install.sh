@@ -151,7 +151,7 @@ TAILSCALE_IP=100.64.0.0
 TARGET_USER=your-username
 # Apprise notification endpoint (tailscale-only; override per environment).
 APPRISE_URL=http://docker:3005
-APPRISE_KEY=deploy-notifications-homelab
+APPRISE_KEY=deploy-notifications
 EOF
         print_success ".env file created! Please update it with your values."
     fi

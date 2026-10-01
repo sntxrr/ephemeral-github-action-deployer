@@ -11,7 +11,7 @@ STATUS="$1"  # start, success, timeout, failure
 PHASE="${2:-deploy}"
 
 APPRISE_URL="${APPRISE_URL:-http://docker:3005}"
-APPRISE_KEY="${APPRISE_KEY:-deploy-notifications-homelab}"
+APPRISE_KEY="${APPRISE_KEY:-deploy-notifications}"
 NOTIFY_TAGS="${NOTIFY_TAGS:-deployment}"
 
 if [ -z "$GITHUB_SHA" ]; then
@@ -64,9 +64,13 @@ case "$STATUS-$PHASE" in
         ;;
 esac
 
-curl --max-time 10 -X POST \
+# curl exits 0 when apprise answers 424 ("not sent", e.g. no tag matched) or 204
+# (unknown key), so the exit code proves nothing: capture the status, require 200.
+code="$(curl --max-time 10 -sS -o /dev/null -w '%{http_code}' -X POST \
      -F "title=$TITLE" \
      -F "body=$MESSAGE" \
      -F "tag=$NOTIFY_TAGS" \
      -F "type=$TYPE" \
-     "$APPRISE_URL/notify/$APPRISE_KEY" || echo "apprise notify failed (non-fatal)"
+     "$APPRISE_URL/notify/$APPRISE_KEY" 2>/dev/null || true)"
+code="${code:-000}"
+[ "$code" = "200" ] || echo "apprise answered HTTP $code for key '$APPRISE_KEY' -- NOT delivered (non-fatal)"
